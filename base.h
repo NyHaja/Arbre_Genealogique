@@ -37,21 +37,5 @@ typedef Car * Chaine;
 #define chaineConcat(sa,sb) strcat(sa,sb)
 #define chaineCompare(sa,sb) strcmp(sa,sb)
 #define chaineCopie(sa,sb) strcpy(sa,sb)
-#define LG_MAX  64
-
-typedef struct s_date { Nat jour, mois, annee; } Date;
-
-typedef struct s_individu {
-	Car nom[LG_MAX];
-	// a completer ici
-	Date naiss, deces;
-	Ident id, ipere, imere, icadet, ifaine;
-} *Individu;
-
-typedef struct s_genealogie {
-	Individu* tab;				// tableau des individus triés par nom
-	Nat nb_individus, id_cur, tab_max_tab,taille_max_rang;
-	Nat *rang;
-} *Genealogie;
 
 #endif

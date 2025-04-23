@@ -1,11 +1,11 @@
 CC = gcc
-CFLAGS =-Wall -Wextra
+CFLAGS = -Wall -Wextra
 
 canevas : canevas.c
-	$(CC) $(CFLAGS) canevas.c -o prog
+	$(CC) $(CFLAGS) canevas.c -o canevas
 
 run: canevas
-	./prog
+	./canevas
 
 clean :
-	rm *.o prog
+	rm *.o prog canevas
