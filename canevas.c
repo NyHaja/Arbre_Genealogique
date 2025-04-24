@@ -299,7 +299,7 @@ void adjFils(Genealogie g, Ident idx, Ident fils, Ident pp, Ident mm)
 		}else{
 			// Insérer idx dans la liste triée des enfants
 			Ident courant= pere->ifaine;
-			Individu filsAine = getByIdent(g, courant);	// Accès au fils ainé
+			Individu filsCourant = getByIdent(g, courant);	// Accès au fils ainé
 			Ident precedent = omega;
 
 			/**
@@ -311,10 +311,10 @@ void adjFils(Genealogie g, Ident idx, Ident fils, Ident pp, Ident mm)
 			 * on le place en tête de liste
 			 * 
 			 */
-			while(courant!= omega && compDate(filsAine->naiss, enfant->naiss) < 0){
+			while(courant!= omega && compDate(filsCourant->naiss, enfant->naiss) < 0 && chaineCompare(filsCourant->nom, enfant->nom) != 0){
 				precedent = courant;	// Parcours de la liste des enfants
-				courant= filsAine->icadet;	// Accès au fils ainé
-				filsAine = getByIdent(g, courant);	// Accès au fils ainé
+				courant= filsCourant->icadet;	// Accès au fils ainé
+				filsCourant = getByIdent(g, courant);	// Accès au fils ainé
 			}
 
 			if(precedent == omega){
@@ -323,9 +323,10 @@ void adjFils(Genealogie g, Ident idx, Ident fils, Ident pp, Ident mm)
 				enfant->icadet = courant;	// Le fils ainé devient le cadet
 			}else{
 				// Réajustement de la liste après l'insertion du nouvel enfant
-				Individu filsCadet = getByIdent(g, precedent);	// Accès au fils cadet	
-				enfant->icadet = filsCadet->icadet;	// Le fils ainé devient le cadet
-				filsCadet->icadet = enfant->id;	// Le fils cadet devient le fils ainé
+				filsCourant = getByIdent(g, precedent);	// Accès au fils cadet
+				if(filsCourant->icadet == idx) return;	// Si l'enfant est déjà dans la liste	
+				enfant->icadet = filsCourant->icadet;	// Le fils ainé devient le cadet
+				filsCourant->icadet = idx;	// Le fils cadet devient le fils ainé
 			}
 		}
 	}
@@ -342,13 +343,13 @@ void adjFils(Genealogie g, Ident idx, Ident fils, Ident pp, Ident mm)
 		}else{
 			// Insérer idx dans la liste triée des enfants
 			Ident courant = mere->ifaine;
-			Individu filsAine = getByIdent(g, courant);	// Accès au fils ainé
+			Individu filsCourant = getByIdent(g, courant);	// Accès au fils ainé
 			Ident precedent = omega;
 
-			while(courant!= omega && compDate(filsAine->naiss, enfant->naiss) < 0){
+			while(courant!= omega && compDate(filsCourant->naiss, enfant->naiss) < 0 && chaineCompare(filsCourant->nom, enfant->nom) != 0){
 				precedent = courant;	// Parcours de la liste des enfants
-				courant = filsAine->icadet;	// Accès au fils ainé
-				filsAine = getByIdent(g, courant);	// Récupére le prochain enfant
+				courant = filsCourant->icadet;	// Accès au fils ainé
+				filsCourant = getByIdent(g, courant);	// Récupére le prochain enfant
 			}
 
 			if(precedent == omega){
@@ -357,9 +358,10 @@ void adjFils(Genealogie g, Ident idx, Ident fils, Ident pp, Ident mm)
 				enfant->icadet = courant;	// Le fils ainé devient le cadet de idx
 			}else{
 				// Réajusement de la liste après l'insertion d'un nouvel enfant
-				Individu filsCadet = getByIdent(g, precedent);	// Accès au fils cadet	
-				enfant->icadet = filsCadet->icadet;	// Le fils ainé devient le cadet
-				filsCadet->icadet = idx;	// Le fils cadet devient le fils ainé
+				filsCourant = getByIdent(g, precedent);	// Accès au fils cadet	
+				if(filsCourant->icadet == idx) return;	// Si l'enfant est déjà dans la liste)
+				enfant->icadet = filsCourant->icadet;	// Le fils ainé devient le cadet
+				filsCourant->icadet = idx;	// Le fils cadet devient le fils ainé
 			}
 		}
 	}
@@ -408,7 +410,7 @@ Ident adj(Genealogie g, Chaine s, Ident p, Ident m, Date n, Date d)
 void affiche_freres_soeurs(Genealogie g, Ident x, Chaine buff)
 {
 	if( g == NULL || buff == NULL) return;
-	// buff[0] = '\0';
+	buff[0] = '\0';
 	Individu ind = getByIdent(g, x);
 	if(ind == NULL) return;
 	Individu pere = getByIdent(g, ind->ipere);
@@ -434,7 +436,7 @@ void affiche_freres_soeurs(Genealogie g, Ident x, Chaine buff)
 void affiche_enfants(Genealogie g, Ident x, Chaine buff)
 {
 	if(g == NULL || buff == NULL) return;
-	// buff[0] = '\0';
+	buff[0] = '\0';
 	Individu parent = getByIdent(g, x);
 	if(parent == NULL) return;
 
@@ -571,7 +573,7 @@ void devient_pere(Genealogie g, Ident x, Ident y)
 	Individu filsAine = getByIdent(g, pere->ifaine);
 	
 	if(enfant->ipere == omega){
-		adjFils(g, enfant->id, enfant->id, y, filsAine->imere);
+		adjFils(g, enfant->id, enfant->id, x, filsAine->imere);
 	}
 }
 
@@ -587,7 +589,7 @@ void devient_mere(Genealogie g, Ident x, Ident y)
 	Individu filsAine = getByIdent(g, mere->ifaine);
 	
 	if(enfant->imere == omega){
-		adjFils(g, enfant->id, enfant->id, filsAine->ipere, y);
+		adjFils(g, enfant->id, filsAine->id, filsAine->ipere, x);
 	}
 }
 
@@ -664,15 +666,131 @@ Ident plus_ancien(Genealogie g, Ident x)
 }
 
 //PRE: None
+//PRE: None
 void affiche_parente(Genealogie g, Ident x, Chaine buff)
 {
 	buff[0] = '\0';
+
+    if (g == NULL || buff == NULL) return;
+
+    Individu ind = getByIdent(g, x);
+    if (ind == NULL) return;
+
+    // Initialisation des listes pour parcourir les générations
+    Ident parents[100]; // Liste des individus de la génération actuelle
+    Nat parent_count = 0; // Nombre d'individus dans la génération actuelle
+
+    // Ajouter les parents initiaux (père et mère)
+    if (ind->ipere != omega) parents[parent_count++] = ind->ipere;
+    if (ind->imere != omega) parents[parent_count++] = ind->imere;
+
+    Ident next_generation[100]; // Liste temporaire pour la génération suivante
+    Nat next_gen_count = 0; // Compteur pour la génération suivante
+
+    Nat generation = 1; // Compteur de génération
+
+    while (parent_count > 0) {
+        // Afficher la génération actuelle
+        chaineCopie(buff, "\nGénération ");
+        buff += strlen(buff);
+        sprintf(buff, "%u :\n", generation);
+        buff += strlen(buff);
+
+        for (Nat i = 0; i < parent_count; i++) {
+            Individu parent = getByIdent(g, parents[i]);
+            if (parent != NULL) {
+                // Afficher le parent
+                chaineCopie(buff, nomIndividu(parent));
+                buff += strlen(buff);
+                buff[0] = ' ';
+                buff++;
+                buff[0] = '\0';
+
+
+                affiche_freres_soeurs(g, parent->id, buff);
+                buff += strlen(buff);
+                buff[0] = ' ';
+                buff++;
+                buff[0] = '\0';
+
+                // Ajouter les parents du parent à la génération suivante
+                if (parent->ipere != omega) {
+                    next_generation[next_gen_count++] = parent->ipere;
+                }
+                if (parent->imere != omega) {
+                    next_generation[next_gen_count++] = parent->imere;
+                }
+            }
+        }
+
+        // Préparer la génération suivante
+        for (Nat i = 0; i < next_gen_count; i++) {
+            parents[i] = next_generation[i];
+        }
+        parent_count = next_gen_count;
+        next_gen_count = 0;
+        generation++;
+    }
 }
 
 //PRE: None
 void affiche_descendance(Genealogie g, Ident x, Chaine buff)
 {
-	buff[0] = '\0';
+	buff[0]='\0';
+
+	if(g == NULL || buff == NULL) return;
+	Individu ind = getByIdent(g, x);
+	if(ind == NULL) return;
+
+	Ident descendance[100]; // Liste de la descendance
+	Nat descendance_count = 0; // Compteur de la descendance
+	
+	Individu filsAine = getByIdent(g, ind->ifaine);
+	while(filsAine != NULL){
+		descendance[descendance_count++] = filsAine->id;	// Ajout du fils ainé à la liste de descendance
+		filsAine = getByIdent(g, filsAine->icadet);
+	}
+	
+	Ident next_generation[100]; // Liste temporaire pour la génération suivante
+	Nat next_gen_count = 0; // Compteur pour la génération suivante
+	
+	Nat generation = 1; // Compteur de génération
+
+	while(descendance_count > 0){
+		// Afficher la génération actuelle
+		chaineCopie(buff, "\nGénération ");
+		buff += strlen(buff);
+		sprintf(buff, "%u :\n", generation);
+		buff += strlen(buff);
+
+		// Afficher la descendance de chaque enfant
+		for(Nat i = 0; i < descendance_count; i++){
+			Individu enfant = getByIdent(g, descendance[i]);
+			if(enfant != NULL){
+				// Afficher l'enfant
+				chaineCopie(buff, nomIndividu(enfant));
+				buff += strlen(buff);
+				buff[0] = ' ';
+				buff++;
+				buff[0] = '\0';
+
+				Individu petit_filsAine = getByIdent(g, enfant->ifaine);	// Récupere le fils ainé de la fratrie
+				while(petit_filsAine != NULL){
+					next_generation[next_gen_count++] = petit_filsAine->id;	// Ajout du fils ainé à la liste de descendance
+					petit_filsAine = getByIdent(g, petit_filsAine->icadet);
+				}
+			}
+		}
+
+		// Préparer la génération suivante
+		for(Nat i = 0; i < next_gen_count; i++){
+			descendance[i] = next_generation[i];
+		}
+		descendance_count = next_gen_count;
+		next_gen_count = 0;
+		generation++;
+	}
+
 }
 
 // 
