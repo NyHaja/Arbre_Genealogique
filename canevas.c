@@ -211,7 +211,7 @@ Individu getByName(Genealogie g, Chaine name, Date naissance)
 			Date currentDate = g->tab[i]->naiss;
 			Date jeuneDate = jeune->naiss;
 
-			if(compDate(currentDate, jeuneDate)==0){
+			if(compDate(currentDate, jeuneDate)>0){
 				jeune = g->tab[i];
 			}
 			i++;
@@ -374,7 +374,12 @@ Ident adj(Genealogie g, Chaine s, Ident p, Ident m, Date n, Date d)
 {
 	// valeurs interdites
 	if (s == NULL || s[0] == 0 || n.jour == 0 || n.mois == 0 || n.annee == 0) return omega;
-	if(g==NULL)	genealogieInit(g);
+
+	if(g==NULL)	genealogieInit(&g);
+	
+	// Si l'individu existe déjà
+	Individu ind = getByName(g, s, n);
+	if(ind != NULL) return omega;
 
 	Nat pos = getPos(g, s);	// position du nom dans le tableau
 
@@ -912,6 +917,7 @@ int main()
 	if (idch != NULL) printf("Youngest Albus, date birth %d:%d:%d\n", naissIndividu(idch).jour, naissIndividu(idch).mois, naissIndividu(idch).annee);
 	else printf("what? no Albus! There is a serious problem here...\n");
 
+	printf("nb_individus: %d\n", cardinal(g));
 
 	printf("\n******* fratrie:\n");
 	printf("Freres/Soeurs de %s:\n", nomIndividu(getByIdent(g, ig)));
